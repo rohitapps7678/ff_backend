@@ -1,3 +1,7 @@
 celery
 redis  # ya rabbitmq
 django-celery-beat
+gunicorn
+psycopg2-binary
+whitenoise
+dj-database-url
