@@ -5,3 +5,8 @@ gunicorn
 psycopg2-binary
 whitenoise
 dj-database-url
+Django
+djangorestframework
+djangorestframework-simplejwt
+django-filter
+django-cors-headers
