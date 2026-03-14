@@ -1,0 +1,3 @@
+celery
+redis  # ya rabbitmq
+django-celery-beat
