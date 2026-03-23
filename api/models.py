@@ -32,11 +32,15 @@ class Profile(models.Model):
 
 class Match(models.Model):
     MODE_CHOICES = [
-        ('BR', 'Battle Royale (52 Players)'),
-        ('CS', 'Clash Squad (8 Players)'),
-        ('LW_1V1', 'Lone Wolf (1vs1)'),
-        ('LW_2V2', 'Lone Wolf (2vs2)'),
-    ]
+    ('BR_SOLO',  'Battle Royale — Solo'),
+    ('BR_DUO',   'Battle Royale — Duo'),
+    ('BR_SQUAD', 'Battle Royale — Squad'),
+    ('CS_SOLO',  'Clash Squad — Solo'),
+    ('CS_DUO',   'Clash Squad — Duo'),
+    ('CS_SQUAD', 'Clash Squad — Squad'),
+    ('LW_1V1',   'Lone Wolf 1v1'),
+    ('LW_2V2',   'Lone Wolf 2v2'),
+]
     title = models.CharField(max_length=150)
     rules = models.TextField(blank=True, default="Standard BGMI rules apply. No cheating, etc.")
     image = models.ImageField(upload_to='match_banners/', null=True, blank=True)

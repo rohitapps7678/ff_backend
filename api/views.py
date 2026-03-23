@@ -9,6 +9,7 @@ from rest_framework import status, permissions, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+from django.contrib.auth.models import User
 from rest_framework.parsers import MultiPartParser, FormParser
 
 from .models import (
@@ -19,7 +20,80 @@ from .serializers import (
     TransactionSerializer, MatchParticipantSerializer, DepositRequestSerializer, AdminUPISerializer
 )
 
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import authenticate
 
+class RegisterView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        username = request.data.get('username')
+        email = request.data.get('email')
+        password = request.data.get('password')
+        referral_code = request.data.get('referral_code', '')
+
+        if not username or not password:
+            return Response({"error": "Username aur password required hai"}, status=400)
+
+        if User.objects.filter(username=username).exists():
+            return Response({"error": "Username already taken hai"}, status=400)
+
+        user = User.objects.create_user(
+            username=username, email=email, password=password
+        )
+
+        # Referral handle karo
+        if referral_code:
+            try:
+                referrer = Profile.objects.get(referral_code=referral_code)
+                user.profile.referred_by = referrer
+                user.profile.save()
+                # Referrer ko bonus do
+                referrer.wallet_balance += Decimal('10.00')
+                referrer.save()
+                Transaction.objects.create(
+                    user=referrer.user,
+                    amount=Decimal('10.00'),
+                    transaction_type='REFERRAL',
+                    status='SUCCESS'
+                )
+            except Profile.DoesNotExist:
+                pass  # Invalid referral code — ignore karo
+
+        token, _ = Token.objects.get_or_create(user=user)
+        return Response({"token": token.key}, status=201)
+
+
+class LoginView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        print("AUTH HEADER:", request.headers.get('Authorization'))  # ← add karo
+        print("USER:", request.user)
+        print("=== RAW HEADERS DEBUG ===")
+        print("All headers:", dict(request.headers))           # ← yeh sab headers dikha dega
+        print("Authorization header raw:", request.META.get('HTTP_AUTHORIZATION'))
+        print("Authorization (get):", request.headers.get('Authorization'))
+        print("Current user:", request.user)
+        print("Is authenticated?", request.user.is_authenticated)
+        print("Auth header exists?", 'Authorization' in request.headers)
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        user = authenticate(username=username, password=password)
+        if not user:
+            return Response({"error": "Wrong username ya password"}, status=401)
+
+        token, _ = Token.objects.get_or_create(user=user)
+        return Response({"token": token.key})
+
+
+class LogoutView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        request.user.auth_token.delete()
+        return Response({"message": "Logged out"})
 # ────────────────────────────────────────────────
 #  PERMISSIONS
 # ────────────────────────────────────────────────
@@ -37,6 +111,15 @@ class ProfileView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
+        print("AUTH HEADER:", request.headers.get('Authorization'))  # ← add karo
+        print("USER:", request.user)
+        print("=== RAW HEADERS DEBUG ===")
+        print("All headers:", dict(request.headers))           # ← yeh sab headers dikha dega
+        print("Authorization header raw:", request.META.get('HTTP_AUTHORIZATION'))
+        print("Authorization (get):", request.headers.get('Authorization'))
+        print("Current user:", request.user)
+        print("Is authenticated?", request.user.is_authenticated)
+        print("Auth header exists?", 'Authorization' in request.headers)
         profile = request.user.profile
         serializer = ProfileSerializer(profile)
         return Response({

@@ -22,6 +22,9 @@ from .views import (
     WatchAdAndEarn,
     AdminDashboardStats,
     RecentTransactions,
+    RegisterView,
+    LoginView,
+    LogoutView,
     
     # Withdrawal
     CreateWithdrawalRequest,
@@ -49,6 +52,9 @@ urlpatterns = [
     # =====================================
     path('profile/', ProfileView.as_view(), name='user-profile'),
     path('profile/update/', UpdateProfileView.as_view(), name='update-profile'),
+    path('auth/register/', RegisterView.as_view()),
+    path('auth/login/',    LoginView.as_view()),
+    path('auth/logout/',   LogoutView.as_view()),
     
     # =====================================
     # MATCHES - PUBLIC / USER

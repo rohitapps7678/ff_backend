@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 
     # Third-party packages you need
     'rest_framework',
+    'rest_framework.authtoken',
     'rest_framework_simplejwt',          # JWT authentication
     'corsheaders',                       # Allow frontend (React/Flutter/etc)
     'django_filters',                    # optional - useful for filtering lists
@@ -51,9 +52,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "corsheaders.middleware.CorsMiddleware",               # ← added
+    "django.contrib.sessions.middleware.SessionMiddleware",              # ← added
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -145,7 +146,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
@@ -177,7 +178,19 @@ CORS_ALLOW_ALL_ORIGINS = True           # development ke liye
 #     "https://your-frontend-domain.com",
 # ]
 
-
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'access-control-request-headers',   # ← yeh add karo (preflight ke liye)
+    'access-control-request-method',
+]
 # ────────────────────────────────────────────────
 #  OTHER RECOMMENDED SETTINGS
 # ────────────────────────────────────────────────
