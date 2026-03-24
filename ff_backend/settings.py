@@ -175,11 +175,7 @@ SIMPLE_JWT = {
 #  CORS (allow frontend to connect)
 # ────────────────────────────────────────────────
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:57503",
-    "http://localhost:8000",
-    "http://127.0.0.1:50442",
-]
+CORS_ALLOW_ALL_ORIGINS = True   # testing ke liye
 
 CORS_ALLOW_HEADERS = [
     'accept',
