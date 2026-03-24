@@ -86,7 +86,10 @@ WSGI_APPLICATION = "ff_backend.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# Default: Local SQLite
+# Environment detect
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+
+# Default: SQLite (local)
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
@@ -94,10 +97,10 @@ DATABASES = {
     }
 }
 
-# Render / Production: PostgreSQL
-if "DATABASE_URL" in os.environ:
+# Production: PostgreSQL (Render + Neon)
+if ENVIRONMENT == "production":
     DATABASES["default"] = dj_database_url.parse(
-        os.environ.get("DATABASE_URL"),
+        os.getenv("DATABASE_URL"),
         conn_max_age=600,
         ssl_require=True
     )
@@ -146,7 +149,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.TokenAuthentication', 
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
@@ -171,12 +175,11 @@ SIMPLE_JWT = {
 #  CORS (allow frontend to connect)
 # ────────────────────────────────────────────────
 
-CORS_ALLOW_ALL_ORIGINS = True           # development ke liye
-# Production mein aise karna better:
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:3000",
-#     "https://your-frontend-domain.com",
-# ]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:57503",
+    "http://localhost:8000",
+    "http://127.0.0.1:50442",
+]
 
 CORS_ALLOW_HEADERS = [
     'accept',
@@ -191,6 +194,8 @@ CORS_ALLOW_HEADERS = [
     'access-control-request-headers',   # ← yeh add karo (preflight ke liye)
     'access-control-request-method',
 ]
+
+CORS_ALLOW_CREDENTIALS = True 
 # ────────────────────────────────────────────────
 #  OTHER RECOMMENDED SETTINGS
 # ────────────────────────────────────────────────

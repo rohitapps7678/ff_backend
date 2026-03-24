@@ -750,3 +750,33 @@ class MatchParticipantsList(APIView):
         
         serializer = MatchParticipantSerializer(participants, many=True)
         return Response(serializer.data)
+
+class HealthView(APIView):
+    """
+    GET /api/health/
+    Auth nahi chahiye — load balancer / uptime checks ke liye
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        # DB check
+        db_ok = True
+        try:
+            User.objects.exists()
+        except Exception:
+            db_ok = False
+
+        all_ok = db_ok
+
+        return Response(
+            {
+                "status":    "ok" if all_ok else "degraded",
+                "timestamp": timezone.now().isoformat(),
+                "checks": {
+                    "database": "ok" if db_ok else "error",
+                    "api":      "ok",
+                },
+                "version": "1.0.0",
+            },
+            status=status.HTTP_200_OK if all_ok else status.HTTP_503_SERVICE_UNAVAILABLE,
+        )

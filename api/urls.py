@@ -43,6 +43,7 @@ from .views import (
     AdminUPIListCreate,
     AdminUPIDelete,
     AdminMatchDetail,
+    HealthView,
     AdminSubmitResults,
 )
 
@@ -53,6 +54,7 @@ urlpatterns = [
     path('profile/', ProfileView.as_view(), name='user-profile'),
     path('profile/update/', UpdateProfileView.as_view(), name='update-profile'),
     path('auth/register/', RegisterView.as_view()),
+    path("health/", HealthView.as_view(), name="health"),
     path('auth/login/',    LoginView.as_view()),
     path('auth/logout/',   LogoutView.as_view()),
     
