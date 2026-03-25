@@ -9,8 +9,11 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class MatchSerializer(serializers.ModelSerializer):
+    joined_count = serializers.SerializerMethodField()
+    def get_joined_count(self, obj):
+        return obj.participants.count()
     class Meta:
-        model = Match
+        model  = Match
         fields = '__all__'
 
 

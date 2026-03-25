@@ -548,15 +548,17 @@ class CreateDepositRequest(APIView):
 
 
 class UploadMatchProof(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
-
     def post(self, request, match_id):
         match = get_object_or_404(Match, id=match_id)
+        now   = timezone.now()
 
-        if not match.is_completed:
+        # ✅ Allow upload if end_time passed OR is_completed
+        match_ended = match.is_completed or (match.end_time and now >= match.end_time)
+        if not match_ended:
             return Response({"error": "Match abhi complete nahi hua"}, status=403)
 
+        # Also accept screenshot_url (Cloudinary URL from Flutter)
+        screenshot_url = request.data.get('screenshot_url', '')
         participant = get_object_or_404(
             MatchParticipant,
             match=match,

@@ -10,3 +10,4 @@ djangorestframework
 djangorestframework-simplejwt
 django-filter
 django-cors-headers
+cloudinary
