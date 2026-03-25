@@ -18,10 +18,17 @@ class MatchSerializer(serializers.ModelSerializer):
 
 
 class MatchParticipantSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(source='user.username', read_only=True)
+    username  = serializers.CharField(source='user.username', read_only=True)
+    user_id   = serializers.IntegerField(source='user.id', read_only=True)
+    proof_url = serializers.SerializerMethodField()
+
+    def get_proof_url(self, obj):
+        proof = obj.match_proofs.first()
+        return proof.screenshot.url if proof and proof.screenshot else None
+
     class Meta:
-        model = MatchParticipant
-        fields = ['username', 'kills', 'rank', 'is_winner', 'joined_at']
+        model  = MatchParticipant
+        fields = ['user_id', 'username', 'kills', 'rank', 'is_winner', 'joined_at', 'proof_url']
 
 
 class ScreenshotProofSerializer(serializers.ModelSerializer):

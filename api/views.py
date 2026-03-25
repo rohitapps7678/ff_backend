@@ -153,7 +153,11 @@ class UpdateProfileView(APIView):
 # ────────────────────────────────────────────────
 
 class UpcomingMatchesList(generics.ListAPIView):
-    queryset = Match.objects.filter(is_completed=False).order_by('start_time')
+    # Sirf wahi matches jo abhi start nahi hue
+    queryset = Match.objects.filter(
+        is_completed=False,
+        start_time__gt=timezone.now()   # ← start_time future mein hona chahiye
+    ).order_by('start_time')
     serializer_class = MatchSerializer
     permission_classes = [permissions.AllowAny]
 
@@ -165,12 +169,12 @@ class MatchDetail(generics.RetrieveAPIView):
 
 
 class JoinMatchView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-
-    @transaction.atomic
     def post(self, request):
-        match_id = request.data.get('match_id')
         match = get_object_or_404(Match, id=match_id)
+
+        # ← Yeh add karo — start ke baad join band
+        if timezone.now() >= match.start_time:
+            return Response({"error": "Match shuru ho chuka hai, ab join nahi kar sakte"}, status=400)
 
         if match.is_completed:
             return Response({"error": "Match already over"}, status=410)
