@@ -170,6 +170,11 @@ class MatchDetail(generics.RetrieveAPIView):
 
 class JoinMatchView(APIView):
     def post(self, request):
+        match_id = request.data.get("match_id")  # ✅ yaha add karo
+
+        if not match_id:
+            return Response({"error": "match_id required"}, status=400)
+
         match = get_object_or_404(Match, id=match_id)
 
         # ← Yeh add karo — start ke baad join band
